@@ -3,11 +3,23 @@ import sqlite3
 
 app = Flask(__name__)
 app.secret_key = 'BAD_SECRET_KEY'
+offers = {}
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    if session.get('username') == None:
-        return render_template("login.html")
-    return render_template("index.html")
+    with sqlite3.connect("db.db") as db:
+        try:
+            if session.get('username') == None:
+                return render_template("login.html")
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM offers")
+            all_items = cursor.fetchall()
+
+            for row in all_items:
+                offers[str(row[0])] = [row[0],row[1],row[2],row[3],row[4], row[5]]
+        except sqlite3.Error:
+            message = "There was a problem executing the SQL statement"
+            return render_template("index.html")
+    return render_template('index.html', offers = offers)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -17,26 +29,68 @@ def create():
             if session.get('username') == None:
                 return render_template("login.html")
             if request.method == 'POST':
-                beskrivelse = request.form.get('beskrivelse')
-                udløbsdato = request.form.get('udløbsdato')
+                begivenhed = request.form.get('begivenhed')
+                begivenhed_beskrivelse = request.form.get('begivenhed_beskrivelse')
                 lokation = request.form.get('lokation')
-
-                file = request.files["file"]
-                file.save(os.path.join("static/images", file.filename))
+                dato = request.form.get('dato')
+                tidspunkt = request.form.get('tidspunkt')
 
                 cursor = db.cursor()
-                cursor.execute("INSERT INTO Varer (beskrivelse, udløbsdato, lokation, datastore, seller) VALUES (?, ?, ?, ?, ?)", (beskrivelse, udløbsdato, lokation, file.filename, session['username']))
-                cursor.execute("UPDATE Person_information SET points = points + 10 WHERE username = '" + session['username'] + "'")
+                cursor.execute("INSERT INTO offers (creator, activity, date, time, desc) VALUES (?, ?, ?, ?, ?)", (session['username'], begivenhed, dato, tidspunkt, begivenhed_beskrivelse))
         except sqlite3.Error:
             message = "There was a problem executing the SQL statement"
             return render_template("create.html")
     return render_template("create.html")
 
+@app.route('/get', methods=['GET', 'POST'])
+def get_item():
+    with sqlite3.connect("db.db") as db:
+        try:
+            global goods
+            if request.method == 'POST':
+                val = request.get_json().get('val')
+                print(val)
+                cursor = db.cursor()
+                cursor.execute("SELECT * FROM offers_joined WHERE id = ? AND username = ?", (val, session['username']))
+                offer_check = cursor.fetchall()
+                if offer_check == []:
+                    cursor.execute("INSERT INTO offers_joined VALUES (?,?)", (session['username'], val))
+                else:
+                    print("Er i DB")
+            return redirect("/")
+        except sqlite3.Error:
+            message = "There was a problem executing the SQL statement"
+            return redirect("/")
+    return redirect("/")
 
+@app.route('/profile', methods=['POST', 'GET'])
+def profile():
+    with sqlite3.connect("db.db") as db:
+        try:
+            return render_template("profile.html")
+        except sqlite3.Error:
+            message = "There was a problem executing the SQL statement"
+            return render_template("profile.html")
+    return render_template('profile.html')
 
 def log_the_user_in(username):
     return redirect("/")
-    
+
+@app.route('/joined', methods=['GET', 'POST'])
+def joined():
+    with sqlite3.connect("db.db") as db:
+        try:
+            cursor = db.cursor()
+            cursor.execute("SELECT * FROM offers INNER JOIN offers_joined ON offers.id = offers_joined.id WHERE offers_joined.username = '" + session['username'] + "'")
+            user_joined = cursor.fetchall()
+            return render_template("joined.html", user_joined=user_joined)
+        except sqlite3.Error:
+            message = "There was a problem executing the SQL statement"
+            return render_template("joined.html")
+    return render_template("joined.html", user_joined=user_joined)
+
+def log_the_user_in(username):
+    return redirect("/")
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():

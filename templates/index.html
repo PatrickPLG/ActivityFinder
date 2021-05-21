@@ -3,10 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>ActivityFinder</title>
+        <title>ActivityFinder - Forside</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
         <link rel="stylesheet" href="../static/main.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
         <link rel="stylesheet" href="">
@@ -20,6 +21,25 @@
                 color: #ffffff;
             }
         </style>
+        <script>
+            function get(clicked_id) {
+                
+                var answer = window.confirm('Vil du tilmelde dig denne aktivitet? (Opdater siden, hvis du trykker ja)')
+                if (answer) {
+                    var val = clicked_id
+                    console.log(val);
+                    $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=utf-8",
+                    url: "/get",
+                    traditional: "true",
+                    data: JSON.stringify({val}),
+                    dataType: "json"
+                    });
+
+                } 
+            }
+        </script>
     </head>
     <body>
         <nav class="navbar navbar-custom">
@@ -27,17 +47,18 @@
               <a class="navbar-brand" href="/">TooMuch</a>
               <form class="d-flex">
                 <a class="nav-link" href="/">Forside</a>
-                <a class="nav-link" href="/joined">tilmeldninger</a>
+                <a class="nav-link" href="/joined">Tilmeldninger</a>
                 <a class="nav-link" href="/create">Opret</a>
                 <a class="nav-link" href="/profile">Profil</a>
                 <a class="nav-link" href="/logout">Log ud</a>
               </form>
             </div>
           </nav>
+          {% for offer in offers %}
           <div class="v1_95">
             <div class="v1_96"></div>
             <div class="v1_97">
-                <span class="v1_98">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500</span>
+                <span class="v1_98">{{ offers[offer][5] }}</span>
             </div>
             <div class="v1_103">
                 <div class="name"></div>
@@ -47,7 +68,7 @@
 
                 </div>
             </div>
-            <div class="v1_107">
+            <div class="v1_107" id="{{ offers[offer][0] }}" style="cursor: pointer;" onclick="get(this.id)">
                 <div class="v1_108">
 
                 </div>
@@ -61,13 +82,15 @@
                 <div class="v1_111"></div>
                 <div class="v104_179">
                     <div class="v104_180"></div>
-                    <span class="v104_181">3/4</span>
-                    <span class="v104_182">12:00</span>
+                    <span class="v104_181">{{ offers[offer][3] }}</span>
+                    <span class="v104_182">{{ offers[offer][4] }}</span>
                 </div>
-                <span class="v1_112">Fodbold</span>
+                <span class="v1_112">{{ offers[offer][2] }}</span>
             </div>
         </div>
+        {% endfor %}
         
         <script src="" async defer></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
     </body>
 </html>
