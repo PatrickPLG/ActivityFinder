@@ -25,8 +25,6 @@
 .Column {
   float: left;
   width: 33.33%;
-  margin-left: 16.665px;
-  margin-right: 16.665px;
 }
   .v1_96 {
     width: 420px;
@@ -262,3 +260,57 @@
     text-align: left;
   }
   
+  div.wrapper {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+  }
+  
+  #submit_button {
+    margin-top: 10px;
+    padding-top: 5px;
+    padding-right: 50px;
+    padding-left: 50px;
+    padding-bottom: 5px;
+    background-color: #22353C;
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    color: #ffffff;
+    border-style: none;
+    border-top-left-radius: 11px;
+    border-top-right-radius: 11px;
+    border-bottom-left-radius: 11px;
+    border-bottom-right-radius: 11px;
+  }
+  
+  #file {
+    margin-bottom: 10px;
+  }
+  
+  body div img {
+    margin-top: 10px;
+    
+  }
+  
+  div.joined-wrapper {
+    margin: auto;
+    width: 50%;
+  }
+  div.chat-wrapper {
+    margin: auto;
+    width: 50%;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  div.inputfields {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+  }
+  
+  #begivenhedtext {
+    margin-top: 10px;
+  }

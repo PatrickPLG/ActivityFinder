@@ -39,6 +39,12 @@
 
                 } 
             }
+
+            function get_location(clicked_location_id) {
+                var val_location = clicked_location_id
+                console.log(val_location)
+                var location = window.confirm('Adresse: ' + val_location)
+            }
         </script>
     </head>
     <body>
@@ -76,12 +82,12 @@
                 </div>
                 <span class="v1_109">Tilmeld</span>
             </div>
-            <div class="v201_5">
+            <div class="v201_5" id="{{ offers[offer][6] }}" style="cursor: pointer;" onclick="get_location(this.id)">
                 <div class="v201_6"></div>
                 <span class="v201_7">Lokation</span>
             </div>
             <div class="v1_110">
-                <div class="v1_111"></div>
+                <div class="v1_111" style="background-image: url('static/images/{{ offers[offer][7] }}');"></div>
                 <div class="v104_179">
                     <div class="v104_180"></div>
                     <span class="v104_181">{{ offers[offer][3] }}</span>

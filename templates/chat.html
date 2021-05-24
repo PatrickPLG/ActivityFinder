@@ -7,33 +7,12 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-        <link rel="stylesheet" href="../static/joined.css">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>      
+        <link rel="stylesheet" href="../static/main.css">
+        <script src="https://kit.fontawesome.com/9fc9fda4e4.js" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
         <link rel="stylesheet" href="">
-        <script>
-            function unsubscribe(clicked_id) {
-                
-                var answer = window.confirm('Vil du framelde dig denne aktivitet? (Opdater siden, hvis du trykker ja)')
-                if (answer) {
-                    var val = clicked_id
-                    console.log(val);
-                    $.ajax({
-                    type: "POST",
-                    contentType: "application/json;charset=utf-8",
-                    url: "/unsubscribe",
-                    traditional: "true",
-                    data: JSON.stringify({val}),
-                    dataType: "json"
-                    });
-
-                } 
-            }
-
-            function redirect() {
-                window.location = "/chat";
-            }
-        </script>
         <style>
             .navbar-custom {
                 background-color: #FFC342;
@@ -44,6 +23,28 @@
                 color: #ffffff;
             }
         </style>
+        <script type="text/javascript">
+            $(document).ready(function() {
+            
+                var socket = io.connect('http://127.0.0.1:5000');
+                console.log('Received message');
+            
+                socket.on('connect', function() {
+                    socket.send('{{ username[0][0] }} har tilsluttet sig chatrummet!');
+                });
+            
+                socket.on('message', function(msg) {
+                    $("#messages").append('<li>'+msg+'</li>');
+                    console.log('Received message');
+                });
+            
+                $('#sendbutton').on('click', function() {
+                    socket.send($('#myMessage').val());
+                    $('#myMessage').val('');
+                });
+            
+            });
+            </script>
     </head>
     <body>
         <nav class="navbar navbar-custom">
@@ -58,23 +59,10 @@
               </form>
             </div>
           </nav>
-          <div class="joined-wrapper">
-          {% for joined in user_joined %}
-          <div class="v116_6"><div class="v108_2"></div>
-          <span class="v108_3">{{ joined[2] }}</span><div class="v116_2">
-              <div class="v116_3"></div>
-              <span class="v116_4">{{ joined[3] }}</span>
-              <span class="v116_5">{{ joined[4] }}</span>
-          </div>
-          <div class="v116_7">
-              <div class="v116_8"></div>
-              <span class="v116_9" id="{{ joined[0] }}" style="cursor: pointer;" onclick="unsubscribe(this.id)">FRAMELD</span>
-          </div><div class="v116_10">
-              <div class="v116_11"></div>
-              <span class="v116_12" style="cursor: pointer;" onclick="redirect()">CHATRUM</span>
-          </div>
-      </div>
-          {% endfor %}
+        <div class="chat-wrapper">
+        <ul id="messages"></ul>
+        <input type="text" id="myMessage">
+        <button id="sendbutton">Send</button>
         </div>
         <script src="" async defer></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
