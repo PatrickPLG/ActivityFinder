@@ -54,7 +54,9 @@
               </form>
             </div>
           </nav>
+          <div class="Row">
           {% for offer in offers %}
+          <div class="Column">
           <div class="v1_95">
             <div class="v1_96"></div>
             <div class="v1_97">
@@ -88,7 +90,10 @@
                 <span class="v1_112">{{ offers[offer][2] }}</span>
             </div>
         </div>
+        </div>
+        
         {% endfor %}
+        </div>
         
         <script src="" async defer></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
