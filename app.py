@@ -24,24 +24,29 @@ def index():
             return render_template("index.html")
     return render_template('index.html', offers = offers)
 
-
+# Siden hvor man opretter en aktivitet
 @app.route('/create', methods=['GET', 'POST'])
 def create():
+    # Opretter forbindelse til databasen
     with sqlite3.connect("db.db") as db:
         try:
+            # Hvis man ikke er logget ind sendes man til login siden
             if session.get('username') == None:
                 return render_template("login.html")
+            # Hvis der bliver trykket på knappen på siden
             if request.method == 'POST':
+                # Får data fra alle inputfelterne
                 begivenhed = request.form.get('begivenhed')
                 begivenhed_beskrivelse = request.form.get('begivenhed_beskrivelse')
                 lokation = request.form.get('lokation')
                 dato = request.form.get('dato')
                 tidspunkt = request.form.get('tidspunkt')
-
+                # Først hentes profilbilledet og derefter indsættes alt data ind i databasen
                 cursor = db.cursor()
                 cursor.execute("SELECT profile_picture FROM person_information WHERE username = '" + session['username'] + "'")
                 profile_picture = cursor.fetchall()
-                cursor.execute("INSERT INTO offers (creator, activity, date, time, desc, location, image) VALUES (?, ?, ?, ?, ?, ?)", (session['username'], begivenhed, dato, tidspunkt, begivenhed_beskrivelse, lokation, profile_picture[0][0]))
+                cursor.execute("INSERT INTO offers (creator, activity, date, time, desc, location, image) VALUES (?, ?, ?, ?, ?, ?,?)", (session['username'], begivenhed, dato, tidspunkt, begivenhed_beskrivelse, lokation, profile_picture[0][0]))
+        # Hvis der er en fejl med databasen
         except sqlite3.Error:
             message = "There was a problem executing the SQL statement"
             return render_template("create.html")
@@ -169,7 +174,7 @@ def register():
                 if valid_login == []:
                     cur = db.cursor()
                     cur.execute("INSERT INTO users(username, password) values (?,?)", (username,password))
-                    cur.execute("INSERT INTO person_information(username, name) values (?,?)", (username,name))
+                    cur.execute("INSERT INTO person_information(username, name, profile_picture) values (?,?,?)", (username,name,'profilepicture.png'))
                     
                     render_template('login.html', error=error)
                 else:
