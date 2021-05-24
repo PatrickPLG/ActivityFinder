@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
+import os
+from flask_socketio import SocketIO, send
 
 app = Flask(__name__)
 app.secret_key = 'BAD_SECRET_KEY'
 offers = {}
+socketio = SocketIO(app, cors_allowed_origins='*')
 @app.route('/', methods=['POST', 'GET'])
 def index():
     with sqlite3.connect("db.db") as db:
@@ -15,7 +18,7 @@ def index():
             all_items = cursor.fetchall()
 
             for row in all_items:
-                offers[str(row[0])] = [row[0],row[1],row[2],row[3],row[4], row[5]]
+                offers[str(row[0])] = [row[0],row[1],row[2],row[3],row[4], row[5], row[6], row[7]]
         except sqlite3.Error:
             message = "There was a problem executing the SQL statement"
             return render_template("index.html")
@@ -36,7 +39,9 @@ def create():
                 tidspunkt = request.form.get('tidspunkt')
 
                 cursor = db.cursor()
-                cursor.execute("INSERT INTO offers (creator, activity, date, time, desc) VALUES (?, ?, ?, ?, ?)", (session['username'], begivenhed, dato, tidspunkt, begivenhed_beskrivelse))
+                cursor.execute("SELECT profile_picture FROM person_information WHERE username = '" + session['username'] + "'")
+                profile_picture = cursor.fetchall()
+                cursor.execute("INSERT INTO offers (creator, activity, date, time, desc, location, image) VALUES (?, ?, ?, ?, ?, ?)", (session['username'], begivenhed, dato, tidspunkt, begivenhed_beskrivelse, lokation, profile_picture[0][0]))
         except sqlite3.Error:
             message = "There was a problem executing the SQL statement"
             return render_template("create.html")
@@ -46,7 +51,6 @@ def create():
 def get_item():
     with sqlite3.connect("db.db") as db:
         try:
-            global goods
             if request.method == 'POST':
                 val = request.get_json().get('val')
                 print(val)
@@ -63,15 +67,20 @@ def get_item():
             return redirect("/")
     return redirect("/")
 
-@app.route('/profile', methods=['POST', 'GET'])
-def profile():
+@app.route('/unsubscribe', methods=['GET', 'POST'])
+def unsubscribe():
     with sqlite3.connect("db.db") as db:
         try:
-            return render_template("profile.html")
+            if request.method == 'POST':
+                unsubscribe_offer = request.get_json().get('val')
+                print(unsubscribe_offer)
+                cursor = db.cursor()
+                cursor.execute("DELETE FROM offers_joined WHERE id = ? AND username = ?", (unsubscribe_offer, session['username']))
+            return redirect("joined")
         except sqlite3.Error:
             message = "There was a problem executing the SQL statement"
-            return render_template("profile.html")
-    return render_template('profile.html')
+            return redirect("joined")
+    return redirect("joined")
 
 def log_the_user_in(username):
     return redirect("/")
@@ -117,6 +126,31 @@ def login():
 
     return render_template('login.html', error=error)
 
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    with sqlite3.connect('db.db') as db:
+        try:
+            if session.get('username') == None:
+                return render_template("login.html")
+            cur = db.cursor()
+            cur.execute("select * from person_information where username = '" + session['username'] + "'")
+            personalInformation = cur.fetchall()
+            print(personalInformation)
+
+            if request.method == 'POST':
+                name = request.form.get('navn')
+                file = request.files["file"]
+                file.save(os.path.join("static/images", file.filename))
+                cur.execute("UPDATE offers SET image = ? WHERE creator = ?", (file.filename, session['username']))
+                cur.execute("UPDATE person_information SET name = ?, profile_picture = ? WHERE username = ?", (name, file.filename, session['username']))
+                return redirect("/profile")
+
+            return render_template("profile.html", personalInformation=personalInformation)
+        except sqlite3.Error:
+            message = "There was a problem executing the SQL statement"
+            return render_template("profile.html")
+    return render_template("profile.html", personalInformation=personalInformation)
+
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     with sqlite3.connect("db.db") as db:
@@ -126,8 +160,6 @@ def register():
                 username = request.form.get('username')
                 password = request.form.get('password')
                 name = request.form.get('name')
-                adress = request.form.get('adress')
-                number = request.form.get('number')
 
                 cursor = db.cursor()
                 cursor.execute('select * from users where username = ? and password = ?', (username,password))
@@ -137,6 +169,7 @@ def register():
                 if valid_login == []:
                     cur = db.cursor()
                     cur.execute("INSERT INTO users(username, password) values (?,?)", (username,password))
+                    cur.execute("INSERT INTO person_information(username, name) values (?,?)", (username,name))
                     
                     render_template('login.html', error=error)
                 else:
@@ -151,4 +184,22 @@ def logout():
     session.pop('username', default=None)
     return render_template('login.html')
 
-app.run(host='0.0.0.0', port=81, debug=True)
+@app.route('/chat')
+def chat():
+    with sqlite3.connect("db.db") as db:
+        try:
+            cur = db.cursor()
+            cur.execute("SELECT name FROM person_information WHERE username = '" + session['username'] + "'")
+            username = cur.fetchall()
+        except sqlite3.Error:
+            message = "There was a problem executing the SQL statement"
+            return render_template("register.html", error=message)
+    return render_template('chat.html', username=username)
+
+@socketio.on('message')
+def handleMessage(msg):
+	print('Message: ' + msg)
+	send(msg, broadcast=True)
+
+if __name__ == '__main__':
+	socketio.run(app)

@@ -9,6 +9,7 @@
         <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
         <link rel="stylesheet" href="../static/main.css">
+        <script src="https://kit.fontawesome.com/9fc9fda4e4.js" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
         <link rel="stylesheet" href="">
         <style>
@@ -35,6 +36,26 @@
               </form>
             </div>
           </nav>
+          <div class="wrapper">
+            <img src="../static/images/{{ personalInformation[0][2] }}" width="170,6" height="170,6">
+            <h2>{{ personalInformation[0][1] }}</h2>
+    
+            <div class="personal_informations">
+                <form name="information" method="post" action="/profile" onsubmit="return validateForm()" target="_self" enctype="multipart/form-data">
+                    <label for="file" class="custom-file-upload">
+                        <p>Upload profilbillede</p>
+                        <br>
+                        <input id="file" type="file" name="file"/>
+                    </label>
+                    <br>
+                    <label id="navn" for"navn">Navn</label><br>
+                    <input type="text" id="navn" name="navn" placeholder="{{ personalInformation[0][1] }}">
+                    <br>
+                    <input id="submit_button" type="submit" value="Gem">
+                </form>
+    
+            </div>
+            </div>
         
         <script src="" async defer></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>

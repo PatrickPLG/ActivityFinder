@@ -165,4 +165,7 @@
     opacity: 1;
     text-align: left;
   }
-  
+  div.joined-wrapper {
+    margin: auto;
+    width: 50%;
+  }  
