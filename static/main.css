@@ -17,6 +17,17 @@
     left: 0px;
     overflow: hidden;
   }
+  .Row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+.Column {
+  float: left;
+  width: 33.33%;
+  margin-left: 16.665px;
+  margin-right: 16.665px;
+}
   .v1_96 {
     width: 420px;
     height: 254px;
@@ -181,6 +192,7 @@
     width: 75px;
     height: 75px;
     background: url("../static/images/v1_111.png");
+    background-size: 100% 100%;
     opacity: 1;
     position: absolute;
     top: 20px;
@@ -241,6 +253,7 @@
     color: rgba(255,255,255,1);
     position: absolute;
     top: 30px;
+    width: 150px;
     left: 138px;
     font-family: Titillium Web;
     font-weight: Regular;
