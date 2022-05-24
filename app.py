@@ -11,7 +11,7 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 def index():
     with sqlite3.connect("db.db") as db:
         try:
-            if session.get('username') == None:
+            if session.get('username') is None:
                 return render_template("login.html")
             cursor = db.cursor()
             cursor.execute("SELECT * FROM offers")
@@ -31,7 +31,7 @@ def create():
     with sqlite3.connect("db.db") as db:
         try:
             # Hvis man ikke er logget ind sendes man til login siden
-            if session.get('username') == None:
+            if session.get('username') is None:
                 return render_template("login.html")
             # Hvis der bliver trykket på knappen på siden
             if request.method == 'POST':
@@ -135,7 +135,7 @@ def login():
 def profile():
     with sqlite3.connect('db.db') as db:
         try:
-            if session.get('username') == None:
+            if session.get('username') is None:
                 return render_template("login.html")
             cur = db.cursor()
             cur.execute("select * from person_information where username = '" + session['username'] + "'")
